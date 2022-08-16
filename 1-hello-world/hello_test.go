@@ -2,6 +2,11 @@ package main
 
 import "testing"
 
-func TestHelloWorld(t *testing.T) {
-	// t.Fatal("not implemented")
+func TestHello(t *testing.T) {
+	got := Hello()
+	want := "Hello World"
+
+	if got != want {
+		t.Errorf("got %q want %q", got, want)
+	}
 }
