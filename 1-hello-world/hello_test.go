@@ -1,32 +1,29 @@
 package main
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestHello(t *testing.T) {
-	t.Run("with name", func(t *testing.T) {
-		got := Hello("PQ", "english")
-		want := "Hello PQ"
+	var tests = []struct {
+		name, language, want string
+	}{
+		{"Jess", "english", "Hello Jess"},
+		{"bob", "spanish", "Hola bob"},
+		{"Sue", "french", "Bounjour Sue"},
+		{"", "", "Hello World"},
+	}
 
-		assertCorrectString(t, got, want)
-	})
-	t.Run("without name", func(t *testing.T) {
-		got := Hello("", "english")
-		want := "Hello World"
-
-		assertCorrectString(t, got, want)
-	})
-	t.Run("Spanish, without name", func(t *testing.T) {
-		got := Hello("", "spanish")
-		want := "Hola World"
-
-		assertCorrectString(t, got, want)
-	})
-	t.Run("French, without name", func(t *testing.T) {
-		got := Hello("", "french")
-		want := "Bounjour World"
-
-		assertCorrectString(t, got, want)
-	})
+	for _, test := range tests {
+		testName := fmt.Sprintf(
+			"%q%q%q", test.name, test.language, test.want,
+		)
+		t.Run(testName, func(t *testing.T) {
+			got := Hello(test.name, test.language)
+			assertCorrectString(t, got, test.want)
+		})
+	}
 }
 
 func assertCorrectString(t testing.TB, got, want string) {
