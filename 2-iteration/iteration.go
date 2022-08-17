@@ -1,9 +1,9 @@
 package iteration
 
 // Repeat the input n times
-func Repeat(char string) (repeated string) {
-	for i := 0; i < 5; i++ {
-		repeated = repeated + char
+func Repeat(char string, times int) (repeated string) {
+	for i := 0; i < times; i++ {
+		repeated += char
 	}
 	return
 }

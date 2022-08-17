@@ -7,19 +7,28 @@ import (
 
 func TestRepeat(t *testing.T) {
 	var tests = []struct {
-		char, want string
+		char  string
+		times int
+		want  string
 	}{
-		{"a", "aaaaa"},
+		{"a", 5, "aaaaa"},
+		{"a", 0, ""},
 	}
 
 	for _, test := range tests {
-		testName := fmt.Sprintf("%q 5 times =%q", test.char, test.want)
+		testName := fmt.Sprintf("%q %q times=%q", test.char, test.times, test.want)
 
 		t.Run(testName, func(t *testing.T) {
-			got := Repeat(test.char)
+			got := Repeat(test.char, test.times)
 			if got != test.want {
 				t.Errorf("got %q want %q", got, test.want)
 			}
 		})
+	}
+}
+
+func BenchmarkRepeat(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Repeat("a", 100)
 	}
 }
