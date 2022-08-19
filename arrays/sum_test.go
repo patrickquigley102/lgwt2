@@ -7,7 +7,8 @@ import (
 )
 
 func TestSum(t *testing.T) {
-	var tests = []struct {
+	t.Parallel()
+	tests := []struct {
 		slice []int
 		want  int
 	}{
@@ -16,9 +17,11 @@ func TestSum(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		testName := fmt.Sprintf("%d = %d", test.slice, test.want)
 
 		t.Run(testName, func(t *testing.T) {
+			t.Parallel()
 			got := Sum(test.slice)
 			if got != test.want {
 				t.Errorf("got %d want %d", got, test.want)
@@ -28,7 +31,8 @@ func TestSum(t *testing.T) {
 }
 
 func TestSumAll(t *testing.T) {
-	var tests = []struct {
+	t.Parallel()
+	tests := []struct {
 		slice1, slice2, want []int
 	}{
 		{[]int{1, 2}, []int{4, 5}, []int{3, 9}},
@@ -36,9 +40,11 @@ func TestSumAll(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		testName := fmt.Sprintf("%d + %d = %d", test.slice1, test.slice2, test.want)
 
 		t.Run(testName, func(t *testing.T) {
+			t.Parallel()
 			got := All(test.slice1, test.slice2)
 			if !reflect.DeepEqual(got, test.want) {
 				t.Errorf("got %d want %d", got, test.want)
