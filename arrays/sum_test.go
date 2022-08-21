@@ -1,54 +1,52 @@
+// Package sum for learnings
 package sum
 
 import (
-	"fmt"
-	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSum(t *testing.T) {
 	t.Parallel()
-	tests := []struct {
+	type args struct {
 		slice []int
-		want  int
-	}{
-		{[]int{1, 2, 3, 4, 5}, 15},
-		{[]int{1, 3}, 4},
 	}
-
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{"3 Factorial", args{[]int{1, 2, 3}}, 6},
+		{"Empty slice", args{[]int{}}, 0},
+	}
 	for _, test := range tests {
 		test := test
-		testName := fmt.Sprintf("%d = %d", test.slice, test.want)
-
-		t.Run(testName, func(t *testing.T) {
+		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
-			got := Sum(test.slice)
-			if got != test.want {
-				t.Errorf("got %d want %d", got, test.want)
-			}
+			assert.Equal(t, test.want, Sum(test.args.slice))
 		})
 	}
 }
 
-func TestSumAll(t *testing.T) {
+func TestAll(t *testing.T) {
 	t.Parallel()
-	tests := []struct {
-		slice1, slice2, want []int
-	}{
-		{[]int{1, 2}, []int{4, 5}, []int{3, 9}},
-		{slice1: []int{1, 3}, want: []int{4, 0}},
+	type args struct {
+		slices [][]int
 	}
-
+	tests := []struct {
+		name string
+		args args
+		want []int
+	}{
+		{"empty slices", args{[][]int{{}, {}}}, []int{0, 0}},
+		{"three slices", args{[][]int{{1, 2}, {3, 4}, {5, 6}}}, []int{3, 7, 11}},
+	}
 	for _, test := range tests {
 		test := test
-		testName := fmt.Sprintf("%d + %d = %d", test.slice1, test.slice2, test.want)
-
-		t.Run(testName, func(t *testing.T) {
+		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
-			got := All(test.slice1, test.slice2)
-			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("got %d want %d", got, test.want)
-			}
+			assert.Equal(t, test.want, All(test.args.slices...))
 		})
 	}
 }
