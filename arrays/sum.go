@@ -20,3 +20,17 @@ func All(slices ...[]int) []int {
 
 	return totals
 }
+
+// AllTails sums the slice of slices excluding the first (head) element.
+func AllTails(slices ...[]int) []int {
+	totals := make([]int, len(slices))
+	for i, slice := range slices {
+		if len(slice) == 0 {
+			totals[i] = 0
+		} else {
+			totals[i] = Sum(slice[1:])
+		}
+	}
+
+	return totals
+}

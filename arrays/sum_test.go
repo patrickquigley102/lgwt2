@@ -50,3 +50,25 @@ func TestAll(t *testing.T) {
 		})
 	}
 }
+
+func TestAllTails(t *testing.T) {
+	t.Parallel()
+	type args struct {
+		slices [][]int
+	}
+	tests := []struct {
+		name string
+		args args
+		want []int
+	}{
+		{"empty slices", args{[][]int{{}, {}}}, []int{0, 0}},
+		{"three slices", args{[][]int{{1, 2}, {3, 4}, {5, 6}}}, []int{2, 4, 6}},
+	}
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, test.want, AllTails(test.args.slices...))
+		})
+	}
+}
