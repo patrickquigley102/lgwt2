@@ -88,12 +88,14 @@ func TestWallet_Withdraw(t *testing.T) {
 		amount Bitcoin
 	}
 	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   Bitcoin
+		name      string
+		fields    fields
+		args      args
+		assertion assert.ErrorAssertionFunc
+		want      Bitcoin
 	}{
-		{"withdraw", fields{5}, args{3}, 2},
+		{"funds available", fields{10}, args{5}, assert.NoError, 5},
+		{"funds not available", fields{1}, args{5}, assert.Error, 1},
 	}
 	for _, test := range tests {
 		test := test
@@ -102,7 +104,7 @@ func TestWallet_Withdraw(t *testing.T) {
 			w := &Wallet{
 				balance: test.fields.balance,
 			}
-			w.Withdraw(test.args.amount)
+			test.assertion(t, w.Withdraw(test.args.amount))
 			assert.Equal(t, test.want, w.Balance())
 		})
 	}

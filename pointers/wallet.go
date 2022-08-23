@@ -1,7 +1,10 @@
 // Package wallet is a wallet.
 package wallet
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 // Bitcoin is cool.
 type Bitcoin int
@@ -27,6 +30,14 @@ func (w *Wallet) Deposit(amount Bitcoin) {
 }
 
 // Withdraw Bitcoins wallet.
-func (w *Wallet) Withdraw(amount Bitcoin) {
+func (w *Wallet) Withdraw(amount Bitcoin) error {
+	if w.balance < amount {
+		return ErrInsufficientBalance
+	}
 	w.balance -= amount
+
+	return nil
 }
+
+// ErrInsufficientBalance when there be no money.
+var ErrInsufficientBalance = errors.New("insufficient balance")
