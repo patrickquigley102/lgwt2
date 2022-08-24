@@ -17,11 +17,6 @@ func (d Dictionary) Search(word string) (string, error) {
 	return word, nil
 }
 
-var (
-	errNoWord          = errors.New("no word in dictionary")
-	errPreExistingWord = errors.New("word already exists")
-)
-
 // Add a word to dictionary.
 func (d Dictionary) Add(word, def string) error {
 	_, err := d.Search(word)
@@ -33,4 +28,15 @@ func (d Dictionary) Add(word, def string) error {
 	d[word] = def
 
 	return nil
+}
+
+type dictionaryErr string
+
+const (
+	errNoWord          = dictionaryErr("no word in dictionary")
+	errPreExistingWord = dictionaryErr("word already exists")
+)
+
+func (e dictionaryErr) Error() string {
+	return string(e)
 }
