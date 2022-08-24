@@ -5,23 +5,40 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestCountdown(t *testing.T) {
 	t.Parallel()
+	type args struct {
+		s *mockSleeper
+	}
 	tests := []struct {
 		name  string
+		args  args
 		wantW string
 	}{
-		{"test", "3\n2\n1\nGo!"},
+		{"test", args{new(mockSleeper)}, "3\n2\n1\nGo!"},
 	}
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 			w := &bytes.Buffer{}
-			Countdown(w)
+			test.args.s.On("Sleep").Times(startCount)
+
+			Countdown(w, test.args.s)
+
 			assert.Equal(t, test.wantW, w.String())
+			test.args.s.AssertExpectations(t)
 		})
 	}
+}
+
+type mockSleeper struct {
+	mock.Mock
+}
+
+func (m *mockSleeper) Sleep() {
+	m.Called()
 }
