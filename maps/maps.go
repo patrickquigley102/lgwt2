@@ -30,6 +30,32 @@ func (d Dictionary) Add(word, def string) error {
 	return nil
 }
 
+// Update the definition of a word in dictionary.
+func (d Dictionary) Update(word, def string) error {
+	_, err := d.Search(word)
+
+	if errors.Is(err, errNoWord) {
+		return err
+	}
+
+	d[word] = def
+
+	return nil
+}
+
+// Delete a word from dictionary.
+func (d Dictionary) Delete(word string) error {
+	_, err := d.Search(word)
+
+	if errors.Is(err, errNoWord) {
+		return err
+	}
+
+	delete(d, word)
+
+	return nil
+}
+
 type dictionaryErr string
 
 const (

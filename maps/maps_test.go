@@ -62,3 +62,53 @@ func TestDictionary_Add(t *testing.T) {
 		})
 	}
 }
+
+func TestDictionary_Update(t *testing.T) {
+	t.Parallel()
+	type args struct {
+		word string
+		def  string
+	}
+	tests := []struct {
+		name      string
+		d         Dictionary
+		args      args
+		want      string
+		assertion assert.ErrorAssertionFunc
+	}{
+		{"preexisting word", testDict(), args{"test", "a"}, "a", assert.NoError},
+		{"new word", testDict(), args{"new", "a"}, "", assert.Error},
+	}
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			test.assertion(t, test.d.Update(test.args.word, test.args.def))
+			got, _ := test.d.Search(test.args.word)
+			assert.Equal(t, test.want, got)
+		})
+	}
+}
+
+func TestDictionary_Delete(t *testing.T) {
+	t.Parallel()
+	type args struct {
+		word string
+	}
+	tests := []struct {
+		name      string
+		d         Dictionary
+		args      args
+		assertion assert.ErrorAssertionFunc
+	}{
+		{"preexisting word", testDict(), args{"test"}, assert.NoError},
+		{"new word", testDict(), args{"new"}, assert.Error},
+	}
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			test.assertion(t, test.d.Delete(test.args.word))
+		})
+	}
+}
