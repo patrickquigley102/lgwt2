@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -41,4 +42,27 @@ type mockSleeper struct {
 
 func (m *mockSleeper) Sleep() {
 	m.Called()
+}
+
+func TestConfigurableSleeper_Sleep(t *testing.T) {
+	t.Parallel()
+	mockSleep := new(mockConfigurableSleeper)
+	duration := time.Second
+	mockSleepFunc := mockSleep.mockSleepFunc
+	configurableSleeper := ConfigurableSleeper{
+		duration: time.Second,
+		sleep:    mockSleepFunc,
+	}
+
+	mockSleep.On("mockSleepFunc", duration)
+	configurableSleeper.Sleep()
+	mockSleep.AssertExpectations(t)
+}
+
+type mockConfigurableSleeper struct {
+	mock.Mock
+}
+
+func (m *mockConfigurableSleeper) mockSleepFunc(duration time.Duration) {
+	m.Called(duration)
 }
