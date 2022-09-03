@@ -3,6 +3,7 @@ package concurrency_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/patrickquigley102/lgwt2/concurrency/concurrency"
 	"github.com/stretchr/testify/assert"
@@ -52,4 +53,23 @@ func (m *mockWebsiteChecker) Check(url string) bool {
 	args := m.Called(url)
 
 	return args.Bool(0)
+}
+
+func BenchmarkCheckWebsites(b *testing.B) {
+	urls := make([]string, 100)
+	for i := 0; i < len(urls); i++ {
+		urls[i] = "a url"
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		concurrency.CheckWebsites(new(slowWebsiteChecker), urls)
+	}
+}
+
+type slowWebsiteChecker struct{}
+
+func (swc slowWebsiteChecker) Check(string) bool {
+	time.Sleep(20 * time.Millisecond)
+
+	return true
 }
