@@ -1,10 +1,11 @@
-package main
+package countdown_test
 
 import (
 	"bytes"
 	"testing"
 	"time"
 
+	"github.com/patrickquigley102/lgwt2/mocking/countdown"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -26,9 +27,9 @@ func TestCountdown(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 			w := &bytes.Buffer{}
-			test.args.s.On("Sleep").Times(startCount)
+			test.args.s.On("Sleep").Times(3)
 
-			Countdown(w, test.args.s)
+			countdown.Countdown(w, test.args.s)
 
 			assert.Equal(t, test.wantW, w.String())
 			test.args.s.AssertExpectations(t)
@@ -49,9 +50,9 @@ func TestConfigurableSleeper_Sleep(t *testing.T) {
 	mockSleep := new(mockConfigurableSleeper)
 	duration := time.Second
 	mockSleepFunc := mockSleep.mockSleepFunc
-	configurableSleeper := ConfigurableSleeper{
-		duration: time.Second,
-		sleep:    mockSleepFunc,
+	configurableSleeper := countdown.ConfigurableSleeper{
+		Duration:  time.Second,
+		SleepFunc: mockSleepFunc,
 	}
 
 	mockSleep.On("mockSleepFunc", duration)
