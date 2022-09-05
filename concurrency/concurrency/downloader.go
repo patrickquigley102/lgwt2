@@ -1,43 +1,88 @@
 package concurrency
 
 import (
+	"context"
 	"fmt"
-	"log"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 )
 
 const (
-	// FileURL is a csv of 1000 URLs.
-	FileURL = "https://gist.githubusercontent.com" +
-		"/bejaneps/ba8d8eed85b0c289a05c750b3d825f61/raw/" +
-		"6827168570520ded27c102730e442f35fb4b6a6d/websites.csv"
 	fileName = "urls.csv"
 	filePath = "/src/personal/go/lgwt2/concurrency/concurrency/"
 )
 
-/*
-create file
-download csv into file
-*/
-
 // DownloadCSV to file on os.
-func DownloadCSV(fs FileSystem) (*os.File, error) {
+func DownloadCSV(fs FileSystem, url string) (*os.File, error) {
 	file, err := fs.Create(fullFilePath(fs))
 	if err != nil {
 		err = fmt.Errorf("failed to create blank file. %w", err)
+
+		return nil, err
+	}
+
+	client := httpClient()
+	req, err := httpRequest(url)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := getFile(client, req)
+	if err != nil {
+		return nil, err
+	}
+
+	file, err = putFile(file, resp)
+	if err != nil {
+		return nil, err
+	}
+
+	return file, nil
+}
+
+func fullFilePath(fs FileSystem) string {
+	dirname, _ := fs.UserHomeDir()
+
+	return dirname + filePath + fileName
+}
+
+func getFile(c *http.Client, r *http.Request) (*http.Response, error) {
+	resp, err := c.Do(r)
+	if err != nil {
+		err = fmt.Errorf("failed to GET csv file from URL. %w", err)
+	}
+
+	return resp, err
+}
+
+func putFile(file *os.File, resp *http.Response) (*os.File, error) {
+	_, err := io.Copy(file, resp.Body)
+	if err != nil {
+		err = fmt.Errorf("failed to copy csv from URL into file. %w", err)
 	}
 
 	return file, err
 }
 
-func fullFilePath(fs FileSystem) string {
-	dirname, err := fs.UserHomeDir()
+func httpRequest(url string) (*http.Request, error) {
+	req, err := http.NewRequestWithContext(
+		context.Background(), http.MethodGet, url, nil,
+	)
 	if err != nil {
-		log.Fatal(err)
+		err = fmt.Errorf("failed to build http request. %w", err)
 	}
 
-	return dirname + filePath + fileName
+	return req, err
+}
+
+func httpClient() *http.Client {
+	return &http.Client{
+		CheckRedirect: func(r *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
 }
 
 // FileSystem is a file system.
@@ -68,32 +113,3 @@ func (OSFS) UserHomeDir() (string, error) {
 
 	return dir, err
 }
-
-/*
-// DownloadCSV downloads a zipped csv of 1 million URLs, unzips and saves the
-// csv whilst deleting the zip file. Returning the File object of the csv.
-// File downloaded from concurrency.FileURL.
-func DownloadCSV() (*os.File, error) {
-	var file *os.File
-	var err error
-
-	if !csvFileExists() {
-		file, err = downloadZip()
-	}
-
-	return file, err
-}
-
-func downloadZip() (*os.File, error) {
-	var file *os.File
-	var err error
-
-	return file, err
-}
-
-func csvFileExists() bool {
-	_, err := os.Stat(fullFilePath())
-
-	return !errors.Is(err, os.ErrNotExist)
-}
-*/

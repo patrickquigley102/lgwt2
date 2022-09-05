@@ -1,7 +1,10 @@
 package concurrency_test
 
 import (
+	"fmt"
 	"log"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"testing"
 
@@ -24,7 +27,7 @@ func TestDownloadCSV(t *testing.T) {
 		want      *os.File
 		assertion assert.ErrorAssertionFunc
 	}{
-		{"create blank file", args{new(mockFS)}, new(os.File), assert.NoError},
+		{"success", args{new(mockFS)}, tempFile(), assert.NoError},
 	}
 	for _, test := range tests {
 		test := test
@@ -33,14 +36,26 @@ func TestDownloadCSV(t *testing.T) {
 
 			test.args.fs.On("UserHomeDir").Return("", nil)
 			test.args.fs.On("Create", filePathName).Return(test.want, nil)
+			testServer := httptest.NewServer(
+				http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					fmt.Fprint(w, "1,2")
+				}))
+			defer testServer.Close()
 
-			got, err := concurrency.DownloadCSV(test.args.fs)
+			got, err := concurrency.DownloadCSV(test.args.fs, testServer.URL)
 
 			test.assertion(t, err)
 			assert.Equal(t, test.want, got)
 			test.args.fs.AssertExpectations(t)
+			_ = os.Remove(test.want.Name())
 		})
 	}
+}
+
+func tempFile() *os.File {
+	file, _ := os.CreateTemp("", "")
+
+	return file
 }
 
 type mockFS struct {
