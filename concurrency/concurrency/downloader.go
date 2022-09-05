@@ -15,31 +15,38 @@ const (
 )
 
 // DownloadCSV to file on os.
-func DownloadCSV(fs FileSystem, url string) (*os.File, error) {
+func DownloadCSV(fs FileSystem, url string) (string, error) {
 	file, err := fs.Create(fullFilePath(fs))
 	if err != nil {
 		err = fmt.Errorf("failed to create blank file. %w", err)
 
-		return nil, err
+		return "", err
 	}
 
 	client := httpClient()
 	req, err := httpRequest(url)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	resp, err := getFile(client, req)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	file, err = putFile(file, resp)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return file, nil
+	err = file.Close()
+	if err != nil {
+		err = fmt.Errorf("failed to close file. %w", err)
+
+		return "", err
+	}
+
+	return file.Name(), nil
 }
 
 func fullFilePath(fs FileSystem) string {

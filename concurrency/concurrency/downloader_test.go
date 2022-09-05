@@ -45,7 +45,7 @@ func TestDownloadCSV(t *testing.T) {
 			got, err := concurrency.DownloadCSV(test.args.fs, testServer.URL)
 
 			test.assertion(t, err)
-			assert.Equal(t, test.want, got)
+			assert.Equal(t, test.want.Name(), got)
 			test.args.fs.AssertExpectations(t)
 			_ = os.Remove(test.want.Name())
 		})
