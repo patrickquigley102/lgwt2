@@ -20,7 +20,7 @@ func TestFileToArray(t *testing.T) {
 		want      []string
 		assertion assert.ErrorAssertionFunc
 	}{
-		{"success", args{file(t, "a,b,c")}, []string{"b"}, assert.NoError},
+		{"success", args{file(t, "a,b,c")}, []string{"http://b"}, assert.NoError},
 		{"no second colunm", args{file(t, "a")}, nil, assert.Error},
 		{"invalid csv", args{file(t, "a\nb\n")}, nil, assert.Error},
 	}

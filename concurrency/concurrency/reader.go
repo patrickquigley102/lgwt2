@@ -43,7 +43,7 @@ func FileToArray(fileName string) ([]string, error) {
 			return nil, err
 		}
 
-		urls = append(urls, rec[1])
+		urls = append(urls, "http://"+rec[1])
 	}
 
 	_ = file.Close()
