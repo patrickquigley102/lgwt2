@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 const (
@@ -22,12 +23,6 @@ download csv into file
 
 // DownloadCSV to file on os.
 func DownloadCSV(fs FileSystem) (*os.File, error) {
-	file, err := createBlankFile(fs)
-
-	return file, err
-}
-
-func createBlankFile(fs FileSystem) (*os.File, error) {
 	file, err := fs.Create(fullFilePath(fs))
 	if err != nil {
 		err = fmt.Errorf("failed to create blank file. %w", err)
@@ -49,6 +44,29 @@ func fullFilePath(fs FileSystem) string {
 type FileSystem interface {
 	Create(name string) (*os.File, error)
 	UserHomeDir() (string, error)
+}
+
+// OSFS is a file system on host OS.
+type OSFS struct{}
+
+// Create calls os.Create().
+func (OSFS) Create(name string) (*os.File, error) {
+	file, err := os.Create(filepath.Clean(name))
+	if err != nil {
+		err = fmt.Errorf("failed to create blank file. %w", err)
+	}
+
+	return file, err
+}
+
+// UserHomeDir calls os.UserHomeDir().
+func (OSFS) UserHomeDir() (string, error) {
+	dir, err := os.UserHomeDir()
+	if err != nil {
+		err = fmt.Errorf("failed to get home dir. %w", err)
+	}
+
+	return dir, err
 }
 
 /*
