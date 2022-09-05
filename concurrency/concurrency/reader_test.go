@@ -31,6 +31,7 @@ func TestFileToArray(t *testing.T) {
 			got, err := concurrency.FileToArray(test.args.fileName)
 			test.assertion(t, err)
 			assert.Equal(t, test.want, got)
+			_ = os.Remove(test.args.fileName)
 		})
 	}
 }
