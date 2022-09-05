@@ -29,13 +29,3 @@ type result struct {
 	string
 	bool
 }
-
-/*
-type websiteCheck struct {
-	url string
-}
-
-func (wc websiteCheck) Check(url string) bool {
-	return false
-}
-*/
