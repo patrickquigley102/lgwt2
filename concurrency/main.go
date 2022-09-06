@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/patrickquigley102/lgwt2/concurrency/concurrency"
@@ -12,7 +13,18 @@ const fileURL = "https://gist.githubusercontent.com" +
 
 func main() {
 	fs := concurrency.OSFS{}
-	_, err := concurrency.DownloadCSV(fs, fileURL)
+	filePathName, err := concurrency.DownloadCSV(fs, fileURL)
+	checkErr(err)
+
+	urls, err := concurrency.FileToArray(filePathName)
+	checkErr(err)
+
+	websiteChecker := concurrency.WebsiteCheck{}
+	responses := concurrency.CheckWebsites(websiteChecker, urls)
+	fmt.Printf("%v", responses) //nolint
+}
+
+func checkErr(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
