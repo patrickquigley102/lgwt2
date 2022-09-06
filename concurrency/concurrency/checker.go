@@ -1,6 +1,11 @@
 // Package concurrency is a package.
 package concurrency
 
+import (
+	"net/http"
+	"time"
+)
+
 // CheckWebsites checks URLS using the WebsiteChecker, returning map of results.
 func CheckWebsites(webCheck WebsiteChecker, urls []string) map[string]bool {
 	results := make(map[string]bool)
@@ -24,6 +29,22 @@ func CheckWebsites(webCheck WebsiteChecker, urls []string) map[string]bool {
 type WebsiteChecker interface {
 	Check(string) bool
 }
+
+// WebsiteCheck checks a URL.
+type WebsiteCheck struct{}
+
+// Check a URL. true if 200, false otherwise.
+func (wc WebsiteCheck) Check(url string) bool {
+	client := http.Client{Timeout: timeout}
+	resp, err := client.Get(url) //nolint
+	if err != nil {
+		return false
+	}
+
+	return resp.StatusCode == http.StatusOK
+}
+
+const timeout = 2 * time.Second
 
 type result struct {
 	string

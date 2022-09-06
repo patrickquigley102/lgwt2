@@ -2,6 +2,8 @@
 package concurrency_test
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -72,4 +74,50 @@ func (swc slowWebsiteChecker) Check(string) bool {
 	time.Sleep(20 * time.Millisecond)
 
 	return true
+}
+
+func TestWebsiteCheck_Check(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name           string
+		want           bool
+		testServerFunc testServerFunc
+	}{
+		{"200", true, test200Server},
+		{"200", false, testNot200Server},
+	}
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			ts := test.testServerFunc(t)
+			defer ts.Close()
+			t.Parallel()
+			wc := concurrency.WebsiteCheck{}
+			assert.Equal(t, test.want, wc.Check(ts.URL))
+		})
+	}
+}
+
+type testServerFunc func(t *testing.T) *httptest.Server
+
+func test200Server(t *testing.T) *httptest.Server {
+	t.Helper()
+
+	return httptest.NewServer(
+		http.HandlerFunc(
+			func(w http.ResponseWriter, r *http.Request) {},
+		),
+	)
+}
+
+func testNot200Server(t *testing.T) *httptest.Server {
+	t.Helper()
+
+	return httptest.NewServer(
+		http.HandlerFunc(
+			func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusBadRequest)
+			},
+		),
+	)
 }
