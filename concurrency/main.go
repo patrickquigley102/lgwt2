@@ -21,7 +21,8 @@ func main() {
 
 	websiteChecker := concurrency.WebsiteCheck{}
 	responses := concurrency.CheckWebsites(websiteChecker, urls)
-	fmt.Printf("%v", responses) //nolint
+	processedResponses := concurrency.Process(responses)
+	fmt.Printf("%v", processedResponses) //nolint
 }
 
 func checkErr(err error) {
