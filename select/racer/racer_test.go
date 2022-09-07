@@ -12,30 +12,45 @@ import (
 
 func TestRacer(t *testing.T) {
 	t.Parallel()
+	baseSer := serv(5 * time.Millisecond)
 	tests := []struct {
 		name      string
-		ser1      *httptest.Server
+		want      string
+		timeout   time.Duration
 		ser2      *httptest.Server
 		assertion assert.ErrorAssertionFunc
 	}{
-		{"test", testServer(0), testServer(20 * time.Millisecond), assert.NoError},
+		{
+			"success",
+			baseSer.URL,
+			(200 * time.Millisecond),
+			serv(20 * time.Millisecond),
+			assert.NoError,
+		},
+		{
+			"timeout failures",
+			"",
+			(1 * time.Millisecond),
+			serv(10 * time.Millisecond),
+			assert.Error,
+		},
 	}
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 
-			got, err := racer.Racer(test.ser1.URL, test.ser2.URL)
-			assert.Equal(t, test.ser1.URL, got)
+			got, err := racer.Racer(baseSer.URL, test.ser2.URL, test.timeout)
+			assert.Equal(t, test.want, got)
 			test.assertion(t, err)
 
-			test.ser1.Close()
+			baseSer.Close()
 			test.ser2.Close()
 		})
 	}
 }
 
-func testServer(wait time.Duration) *httptest.Server {
+func serv(wait time.Duration) *httptest.Server {
 	return httptest.NewServer(
 		http.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {
