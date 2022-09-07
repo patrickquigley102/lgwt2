@@ -4,28 +4,29 @@ package racer
 import (
 	"log"
 	"net/http"
-	"time"
 )
 
 // Racer takes two urls, returns fastest response.
 // Errors if both timeout at 10s.
-func Racer(url1, url2 string) string {
-	duration1 := measureResponseTime(url1)
-	duration2 := measureResponseTime(url2)
-
-	if duration1 < duration2 {
-		return url1
+func Racer(url1, url2 string) (string, error) {
+	select {
+	case <-ping(url1):
+		return url1, nil
+	case <-ping(url2):
+		return url2, nil
 	}
-
-	return url2
 }
 
-func measureResponseTime(url string) time.Duration {
-	start := time.Now()
-	_, err := http.Get(url) //nolint
-	if err != nil {
-		log.Fatal(err)
-	}
+func ping(url string) chan struct{} {
+	channel := make(chan struct{})
 
-	return time.Since(start)
+	go func() {
+		_, err := http.Get(url) //nolint
+		if err != nil {
+			log.Fatal(err)
+		}
+		close(channel)
+	}()
+
+	return channel
 }
