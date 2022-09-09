@@ -2,6 +2,7 @@
 package counter_test
 
 import (
+	"sync"
 	"testing"
 
 	"github.com/patrickquigley102/lgwt2/sync/counter"
@@ -40,6 +41,7 @@ func TestCounter_Inc(t *testing.T) {
 		want      int
 	}{
 		{"start at 0, inc 2", 0, 2, 2},
+		{"start at 5, inc 20", 5, 20, 25},
 	}
 	for _, test := range tests {
 		test := test
@@ -51,6 +53,39 @@ func TestCounter_Inc(t *testing.T) {
 				test.noOfCalls--
 			}
 			assert.Equal(t, test.want, c.Value())
+		})
+	}
+}
+
+func TestCounter_Inc_Concurrent(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name      string
+		init      int
+		noOfCalls int
+		want      int
+	}{
+		{"start at 0, inc 20", 0, 20, 20},
+	}
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			counter := counter.NewCounter(test.init)
+			var wait sync.WaitGroup
+			wait.Add(test.noOfCalls)
+
+			for test.noOfCalls > 0 {
+				test.noOfCalls--
+				go func() {
+					counter.Inc()
+					wait.Done()
+				}()
+			}
+			wait.Wait()
+
+			assert.Equal(t, test.want, counter.Value())
 		})
 	}
 }
