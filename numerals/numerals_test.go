@@ -21,6 +21,18 @@ func TestConvertToNumerals(t *testing.T) {
 	}{
 		{"1", args{1}, "I", assert.NoError},
 		{"2", args{2}, "II", assert.NoError},
+		{"4", args{4}, "IV", assert.NoError},
+		{"5", args{5}, "V", assert.NoError},
+		{"6", args{6}, "VI", assert.NoError},
+		{"9", args{9}, "IX", assert.NoError},
+		{"10", args{10}, "X", assert.NoError},
+		{"11", args{11}, "XI", assert.NoError},
+		{"40", args{40}, "XL", assert.NoError},
+		{"50", args{50}, "L", assert.NoError},
+		{"51", args{51}, "LI", assert.NoError},
+		{"90", args{90}, "XC", assert.NoError},
+		{"100", args{100}, "C", assert.NoError},
+		{"101", args{101}, "CI", assert.NoError},
 	}
 	for _, test := range tests {
 		test := test
